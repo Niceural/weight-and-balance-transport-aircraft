@@ -10,7 +10,7 @@ pub struct Fuselage {
     k_ws: f64, // 0.75[(1 + 2λ)/(1 + λ)]Bw tan Λ/L
     d: f64, // Maximum fuselage diameter (ft)
     // balance
-    pos_cg: f64, // horizontal CG position of the fuselage (given as % fuselage length and measured from the nose), 42 −45% for wing mounted engines
+    pos_cg_f: f64, // horizontal CG position of the fuselage (given as % fuselage length and measured from the nose), 42 −45% for wing mounted engines
 }
 
 impl Fuselage {
@@ -24,7 +24,7 @@ impl Fuselage {
             k_ws: params.get("k_ws").unwrap().clone(),
             d: params.get("d").unwrap().clone(),
             // balance
-            pos_cg: params.get("pos_cg").unwrap().clone(),
+            pos_cg_f: params.get("pos_cg_f").unwrap().clone(),
         }
     }
 
@@ -39,11 +39,11 @@ impl Fuselage {
         r *= self.s_f.powf(0.302);
         r *= f64::powf(1. + self.k_ws, 0.04);
         r *= f64::powf(self.l / self.d, 0.1);
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
     pub fn cg(self) -> Coordinate {
-        Coordinate::new( self.pos_cg * self.l, 0., 0.)
+        Coordinate::new( self.pos_cg_f * self.l, 0., 0.)
     }
 }

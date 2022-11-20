@@ -31,7 +31,7 @@ struct HorizontalTailplane {
     ar_h: f64,     // Horizontal tailplane aspect ratio
     s_e: f64,      // Elevator area (ft2)
     f_w: f64,      // Fuselage width at horizontal tail intersection (ft)
-    b_h: f64,      // Horizontal tailplane b_h (ft)
+    b_ht: f64,      // Horizontal tailplane b_h (ft)
     l_ht: f64, // l_ht from wing aerodynamic centre to horizontal tailplane aerodynamic centre (ft)
     sweep_ht: f64, // Horizontal tailplane quarter chord sweep_ht in radians
     // for balance
@@ -47,7 +47,7 @@ impl HorizontalTailplane {
             ar_h: params.get("ar_h").unwrap().clone(),
             s_e: params.get("s_e").unwrap().clone(),
             f_w: params.get("f_w").unwrap().clone(),
-            b_h: params.get("b_h").unwrap().clone(),
+            b_ht: params.get("b_ht").unwrap().clone(),
             l_ht: params.get("l_ht").unwrap().clone(),
             sweep_ht: params.get("sweep_ht").unwrap().clone(),
             root_chord_ht: params.get("root_chord_ht").unwrap().clone(),
@@ -67,7 +67,7 @@ impl HorizontalTailplane {
         r *= f64::powf(self.ar_h, 0.166);
         r *= f64::powf(1.0 + self.s_e / self.s_ht, 0.1);
         // denominator
-        r /= f64::powf(1. + self.f_w / self.b_h, 0.25);
+        r /= f64::powf(1. + self.f_w / self.b_ht, 0.25);
         r /= self.l_ht;
         r /= f64::cos(self.sweep_ht);
         if r < 0. { panic!("negative weight"); }

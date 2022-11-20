@@ -1,22 +1,19 @@
 pub mod components;
 pub mod utils;
-use csv;
+use components::Aircraft;
 use std::collections::HashMap;
+use std::process;
+use crate::utils::extract_params;
 
-const PARAMS_FILE_PATH: &str = "./parameters.csv";
+const PARAMS_FILE_PATH: &str = "./parameters.csv"; // relative path to parameters file
 type Params = HashMap<String, f64>;
 
 fn main() {
-    let params: Params = extract_params(PARAMS_FILE_PATH);
-}
+    let params: Params = match extract_params(PARAMS_FILE_PATH) {
+        Ok(p) => p,
+        Err(err) => { println!("{}", err); process::exit(1); },
+    };
 
-fn extract_params(path: &str) -> Params {
-    let mut params_file = csv::Reader::from_path(path).unwrap();
-    let mut params: Params = HashMap::new();
-    for result in params_file.records() {
-        let record = result.unwrap();
-        params.insert(record[0].to_string(), record[1].parse::<f64>().unwrap());
-    }
-    params
+    let aircraft = Aircraft::new(&params);
 }
 
