@@ -15,5 +15,6 @@ fn main() {
     };
 
     let aircraft = Aircraft::new(&params);
+    println!("Weight of the aircraft is {} lb", aircraft.weight(0., 0.));
 }
 

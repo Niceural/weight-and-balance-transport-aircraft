@@ -10,6 +10,7 @@ use crate::components::{
     engines::Engines,
     fuselage::Fuselage,
     landing_gear::LandingGear,
+    systems::Systems,
 };
 use crate::Params;
 
@@ -19,6 +20,7 @@ pub struct Aircraft {
     engines: Engines,
     fuselage: Fuselage,
     landing_gear: LandingGear,
+    systems: Systems
 }
 
 impl Aircraft {
@@ -28,6 +30,7 @@ impl Aircraft {
         let engines = Engines::new(params);
         let fuselage = Fuselage::new(params);
         let landing_gear = LandingGear::new(params);
+        let systems = Systems::new(params);
 
         Self {
             wings,
@@ -35,6 +38,7 @@ impl Aircraft {
             engines,
             fuselage,
             landing_gear,
+            systems,
         }
     }
 
@@ -44,6 +48,7 @@ impl Aircraft {
         r += self.engines.weight(n_z);
         r += self.fuselage.weight(w_dg, n_z);
         r += self.landing_gear.weight();
+        r += self.systems.weight(w_dg);
         if r < 0. { panic!("negative weight"); }
         r
     }
