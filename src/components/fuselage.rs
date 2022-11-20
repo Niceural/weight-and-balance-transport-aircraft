@@ -1,4 +1,5 @@
 use crate::utils::coordinate::Coordinate;
+use crate::Params;
 
 pub struct Fuselage {
     // weight
@@ -13,15 +14,17 @@ pub struct Fuselage {
 }
 
 impl Fuselage {
-    pub fn new() -> Self {
+    pub fn new(params: &Params) -> Self {
         Self {
-            k_door: 9.90,
-            k_lg: 9.90,
-            l: 9.90,
-            s_f: 9.90,
-            k_ws: 9.90,
-            d: 9.90,
-            pos_cg: 9.90,
+            // weight
+            k_door: params.get("k_door").unwrap().clone(),
+            k_lg: params.get("k_lg").unwrap().clone(),
+            l: params.get("l").unwrap().clone(),
+            s_f: params.get("s_f").unwrap().clone(),
+            k_ws: params.get("k_ws").unwrap().clone(),
+            d: params.get("d").unwrap().clone(),
+            // balance
+            pos_cg: params.get("pos_cg").unwrap().clone(),
         }
     }
 

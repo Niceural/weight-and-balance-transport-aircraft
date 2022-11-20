@@ -1,5 +1,10 @@
+use crate::Params;
+
 #[derive(Copy, Clone)]
 pub struct LandingGear {
+    // both
+    w_l: f64, // Landing design gross weight (lb)
+    n_l: f64, // Ultimate landing gear load factor. 1.5 × N_gear
     // main landing gear
     k_mp: f64, // 1.126 for kneeling main gear; 1.0 otherwise
     l_m: f64, // Main landing gear length (inches)
@@ -10,34 +15,31 @@ pub struct LandingGear {
     k_np: f64, // 1.15 for kneeling nose-gear; 1.0 otherwise
     l_n: f64, // Nose landing gear length (inches)
     n_nw: f64, // Number of nose wheels
-    // both
-    w_l: f64, // Landing design gross weight (lb)
-    n_l: f64, // Ultimate landing gear load factor. 1.5 × N_gear
 }
 
 impl LandingGear {
-    pub fn new() -> Self {
+    pub fn new(params: &Params) -> Self {
         Self {
-            // main landing gear
-            k_mp: 9.90,
-            l_m: 9.90,
-            n_mw: 9.90,
-            v_s: 9.90,
-            n_mss: 9.90,
-            // nose landing gear
-            k_np: 9.90,
-            l_n: 9.90,
-            n_nw: 9.90,
             // both
-            w_l: 9.90,
-            n_l: 9.90,
+            w_l: params.get("w_l").unwrap().clone(),
+            n_l: params.get("n_l").unwrap().clone(),
+            // main landing gear
+            k_mp: params.get("k_mp").unwrap().clone(),
+            l_m: params.get("l_m").unwrap().clone(),
+            n_mw: params.get("n_mw").unwrap().clone(),
+            v_s: params.get("v_s").unwrap().clone(),
+            n_mss: params.get("n_mss").unwrap().clone(),
+            // nose landing gear
+            k_np: params.get("k_np").unwrap().clone(),
+            l_n: params.get("l_n").unwrap().clone(),
+            n_nw: params.get("n_nw").unwrap().clone(),
         }
     }
 
     pub fn weight(self) -> f64 {
         let r = self.weight_main_landing_gear() + 
             self.weight_nose_landing_gear();
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
@@ -50,7 +52,7 @@ impl LandingGear {
         r *= self.n_mw.powf(0.321);
         r *= self.v_s.powf(0.1);
         r /= self.n_mss.powf(0.5);
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
@@ -61,7 +63,7 @@ impl LandingGear {
         r *= self.n_l.powf(0.2);
         r *= self.l_n.powf(0.5);
         r *= self.n_nw.powf(0.45);
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 }

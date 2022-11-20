@@ -1,3 +1,5 @@
+use crate::Params;
+
 #[derive(Clone, Copy)]
 pub struct Engines {
     // nacelle
@@ -19,24 +21,24 @@ pub struct Engines {
 }
 
 impl Engines {
-    pub fn new() -> Self {
+    pub fn new(params: &Params) -> Self {
         Self {
             // nacelle
-            k_ng: 9.90,
-            n_lt: 9.90,
-            n_w: 9.90,
-            w_enc: 9.90,
-            n_en: 9.90,
-            s_n: 9.90,
+            k_ng: params.get("k_ng").unwrap().clone(),
+            n_lt: params.get("n_lt").unwrap().clone(),
+            n_w: params.get("n_w").unwrap().clone(),
+            w_enc: params.get("w_enc").unwrap().clone(),
+            n_en: params.get("n_en").unwrap().clone(),
+            s_n: params.get("s_n").unwrap().clone(),
             // engine controls
-            l_ec: 9.90,
+            l_ec: params.get("l_ec").unwrap().clone(),
             // engine pneumatic starters
-            w_en: 9.90,
+            w_en: params.get("w_en").unwrap().clone(),
             // fuel system
-            v_t: 9.90,
-            n_t: 9.90,
-            v_p: 9.90,
-            v_i: 9.90,
+            v_t: params.get("v_t").unwrap().clone(),
+            n_t: params.get("n_t").unwrap().clone(),
+            v_p: params.get("v_p").unwrap().clone(),
+            v_i: params.get("v_i").unwrap().clone(),
         }
     }
 
@@ -46,7 +48,7 @@ impl Engines {
             self.weight_engine_controls() +
             self.weight_engine_pneumatic_starter() +
             self.weight_fuel_system();
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
@@ -60,20 +62,20 @@ impl Engines {
         r *= f64::powf(self.w_enc, 0.611);
         r *= f64::powf(self.n_en, 0.984);
         r *= f64::powf(self.s_n, 0.224);
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
     fn weight_engine_controls(self) -> f64 {
         let r = 5. * self.n_en + 0.8 * self.l_ec;
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
     fn weight_engine_pneumatic_starter(self) -> f64 {
         let mut r = 49.19;
         r *= f64::powf(self.n_en * self.w_en * 1e-3, 0.541);
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
@@ -83,7 +85,8 @@ impl Engines {
         r *= self.n_t.powf(0.5);
         r *= 1. + self.v_p / self.v_t;
         r /= 1. + self.v_i / self.v_t;
-        if r < 0. { eprintln!("negative weight"); }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 }
+

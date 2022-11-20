@@ -1,5 +1,5 @@
 use crate::utils::coordinate::Coordinate;
-use log::warn;
+use crate::Params;
 
 pub struct Wings {
     // weights
@@ -8,7 +8,7 @@ pub struct Wings {
     pub lambda: f64,         // wing taper ratio
     pub s_csw: f64,          // area of wing mounted control surfaces in ft^2
     pub t_c_ratio_root: f64, // wing root thickness to chord ratio
-    pub sweep_w: f64,        // wing quarter chord sweep in rad
+    pub sweep: f64,        // wing quarter chord sweep in rad
     // balance
     pub delta_fs_as: f64, // distance between forward spar and aft spar at centerline in ft
     pub x_fs: f64,        // centerline forward spar position from quarter chord in ft
@@ -19,15 +19,15 @@ pub struct Wings {
 }
 
 impl Wings {
-    pub fn new() -> Self {
+    pub fn new(params: &Params) -> Self {
         Self {
             // weights
-            s_w: 9.90,
-            ar: 9.90,
-            lambda: 9.90,
-            s_csw: 9.90,
-            t_c_ratio_root: 9.90,
-            sweep_w: 9.90,
+            s_w: params.get("s_w").unwrap().clone(),
+            ar: params.get("ar").unwrap().clone(),
+            lambda: params.get("lambda").unwrap().clone(),
+            s_csw: params.get("s_csw").unwrap().clone(),
+            t_c_ratio_root: params.get("t_c_ratio_root").unwrap().clone(),
+            sweep: params.get("sweep").unwrap().clone(),
             // balance
             delta_fs_as: 9.90,
             x_fs: 9.90,
@@ -49,11 +49,9 @@ impl Wings {
         r *= f64::powf(1.0 + self.lambda, 0.1);
         r *= self.s_csw.powf(0.1);
         // denominator
-        r /= self.sweep_w.cos();
+        r /= self.sweep.cos();
         r /= self.t_c_ratio_root.powf(0.4);
-        if r < 0. {
-            warn!("negative weight");
-        }
+        if r < 0. { panic!("negative weight"); }
         r
     }
 
