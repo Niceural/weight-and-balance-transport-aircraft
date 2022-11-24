@@ -1,69 +1,109 @@
+use crate::utils::point::Point;
+use crate::utils::weight::Weight;
+use crate::components::Component;
 use crate::Params;
 
 #[derive(Copy, Clone)]
 pub struct LandingGear {
-    // both
-    w_l: f64, // Landing design gross weight (lb)
-    n_l: f64, // Ultimate landing gear load factor. 1.5 × N_gear
-    // main landing gear
-    k_mp: f64, // 1.126 for kneeling main gear; 1.0 otherwise
-    l_m: f64, // Main landing gear length (inches)
-    n_mw: f64, // Number of main wheels
-    v_s: f64, // Landing stall speed (ft/s)
-    n_mss: f64, // Number of main gear shock struts
-    // nose landing gear
-    k_np: f64, // 1.15 for kneeling nose-gear; 1.0 otherwise
-    l_n: f64, // Nose landing gear length (inches)
-    n_nw: f64, // Number of nose wheels
+    main: MainLandingGear,
+    nose: NoseLandingGear,
 }
 
-impl LandingGear {
-    pub fn new(params: &Params) -> Self {
+impl Component for LandingGear {
+    fn new(params: &Params) -> Self {
         Self {
-            // both
-            w_l: params.get("w_l").unwrap().clone(),
-            n_l: params.get("n_l").unwrap().clone(),
-            // main landing gear
-            k_mp: params.get("k_mp").unwrap().clone(),
-            l_m: params.get("l_m").unwrap().clone(),
-            n_mw: params.get("n_mw").unwrap().clone(),
-            v_s: params.get("v_s").unwrap().clone(),
-            n_mss: params.get("n_mss").unwrap().clone(),
-            // nose landing gear
-            k_np: params.get("k_np").unwrap().clone(),
-            l_n: params.get("l_n").unwrap().clone(),
-            n_nw: params.get("n_nw").unwrap().clone(),
+            main: MainLandingGear::new(params),
+            nose: NoseLandingGear::new(params),
         }
     }
 
-    pub fn weight(self) -> f64 {
-        let r = self.weight_main_landing_gear() + 
-            self.weight_nose_landing_gear();
-        if r < 0. { panic!("negative weight"); }
-        r
+    fn weight(self, w_dg: f64, n_z: f64) -> Option<Weight> {
+        Some(
+            self.main.weight(w_dg, n_z)? +
+            self.nose.weight(w_dg, n_z)?
+        )
     }
 
-    fn weight_main_landing_gear(self) -> f64 {
-        let mut r = 0.0106;
-        r *= self.k_mp;
-        r *= self.w_l.powf(0.888);
-        r *= self.n_l.powf(0.25);
-        r *= self.l_m.powf(0.4);
-        r *= self.n_mw.powf(0.321);
-        r *= self.v_s.powf(0.1);
-        r /= self.n_mss.powf(0.5);
-        if r < 0. { panic!("negative weight"); }
-        r
+    fn cg(self) -> Option<Point<f64>> {
+        Some(Point::new(0., 0., 0.))
+    }
+}
+
+#[derive(Copy, Clone)]
+struct MainLandingGear{
+    w_l: Option<f64>, // Landing design gross weight (lb)
+    n_l: Option<f64>, // Ultimate landing gear load factor. 1.5 × N_gear
+    k_mp: Option<f64>, // 1.126 for kneeling main gear; 1.0 otherwise
+    l_m: Option<f64>, // Main landing gear length (inches)
+    n_mw: Option<f64>, // Number of main wheels
+    v_s: Option<f64>, // Landing stall speed (ft/s)
+    n_mss: Option<f64>, // Number of main gear shock struts
+}
+
+
+impl Component for MainLandingGear {
+    fn new(params: &Params) -> Self {
+        Self {
+            w_l: params.get("w_l").copied(),
+            n_l: params.get("n_l").copied(),
+            k_mp: params.get("k_mp").copied(),
+            l_m: params.get("l_m").copied(),
+            n_mw: params.get("n_mw").copied(),
+            v_s: params.get("v_s").copied(),
+            n_mss: params.get("n_mss").copied(),
+        }
     }
 
-    fn weight_nose_landing_gear(self) -> f64 {
-        let mut r = 0.032;
-        r *= self.k_np;
-        r *= self.w_l.powf(0.646);
-        r *= self.n_l.powf(0.2);
-        r *= self.l_n.powf(0.5);
-        r *= self.n_nw.powf(0.45);
-        if r < 0. { panic!("negative weight"); }
-        r
+    fn weight(self, w_dg: f64, n_z: f64) -> Option<Weight> {
+        Some(Weight::new(
+            0.0106 *
+            self.k_mp? *
+            self.w_l?.powf(0.888) *
+            self.n_l?.powf(0.25) *
+            self.l_m?.powf(0.4) *
+            self.n_mw?.powf(0.321) *
+            self.v_s?.powf(0.1) /
+            self.n_mss?.powf(0.5)
+        ))
+    }
+
+    fn cg(self) -> Option<Point<f64>> {
+        Some(Point::new(0., 0., 0.))
+    }
+}
+
+#[derive(Copy, Clone)]
+struct NoseLandingGear{
+    w_l: Option<f64>, // Landing design gross weight (lb)
+    n_l: Option<f64>, // Ultimate landing gear load factor. 1.5 × N_gear
+    k_np: Option<f64>, // 1.15 for kneeling nose-gear; 1.0 otherwise
+    l_n: Option<f64>, // Nose landing gear length (inches)
+    n_nw: Option<f64>, // Number of nose wheels
+}
+
+impl Component for NoseLandingGear {
+    fn new(params: &Params) -> Self {
+        Self {
+            w_l: params.get("w_l").copied(),
+            n_l: params.get("n_l").copied(),
+            k_np: params.get("k_np").copied(),
+            l_n: params.get("l_n").copied(),
+            n_nw: params.get("n_nw").copied(),
+        }
+    }
+
+    fn weight(self, w_dg: f64, n_z: f64) -> Option<Weight> {
+        Some(Weight::new(
+            0.032 *
+            self.k_np? *
+            self.w_l?.powf(0.646) *
+            self.n_l?.powf(0.2) *
+            self.l_n?.powf(0.5) *
+            self.n_nw?.powf(0.45)
+        ))
+    }
+
+    fn cg(self) -> Option<Point<f64>> {
+        Some(Point::new(0., 0., 0.))
     }
 }

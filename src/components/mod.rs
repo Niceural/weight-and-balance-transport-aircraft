@@ -4,6 +4,20 @@ pub mod systems;
 pub mod fuselage;
 pub mod landing_gear;
 pub mod engines;
+use crate::Params;
+use crate::utils::point::Point;
+use crate::utils::weight::Weight;
+
+pub trait Component {
+    fn new(params: &Params) -> Self;
+
+    fn weight(self, w_dg: f64, n_z: f64) -> Option<Weight>;
+
+    fn cg(self) -> Option<Point<f64>>;
+}
+
+/*
+
 use crate::components::{
     wings::Wings,
     tailplane::Tailplane,
@@ -12,8 +26,6 @@ use crate::components::{
     landing_gear::LandingGear,
     systems::Systems,
 };
-use crate::Params;
-
 pub struct Aircraft {
     wings: Wings,
     tailplane: Tailplane,
@@ -53,3 +65,4 @@ impl Aircraft {
         r
     }
 }
+*/
