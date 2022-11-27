@@ -1,9 +1,7 @@
 pub mod wings;
 pub mod tailplane;
-pub mod systems;
+// pub mod systems;
 pub mod fuselage;
-pub mod landing_gear;
-pub mod engines;
 use crate::Params;
 use crate::utils::point::Point;
 use crate::utils::weight::Weight;

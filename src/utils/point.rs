@@ -7,26 +7,27 @@ pub struct Point<T> {
     z: T,
 }
 
-impl<T: Copy> Point<T> {
+impl<T> Point<T> {
     pub fn new(x: T, y: T, z: T) -> Self {
         Self { x, y, z }
     }
 
-    pub fn x(self) -> T {
-        self.x
+    pub fn x(&self) -> &T {
+        &self.x
     }
 
-    pub fn y(self) -> T {
-        self.y
+    pub fn y(&self) -> &T {
+        &self.y
     }
 
-    pub fn z(self) -> T {
-        self.z
+    pub fn z(&self) -> &T {
+        &self.z
     }
 
+/*
     pub fn move_option(p: Point<Option<T>>) -> Option<Point<T>> {
         let x: T = match p.x() {
-            Some(val) => val,
+            Some(val) => *val,
             None => return None,
         };
         let y = match p.y() {
@@ -40,6 +41,7 @@ impl<T: Copy> Point<T> {
 
         Some(Point::new(x, y, z))
     }
+*/
 }
 
 impl<T: ops::Add<Output = T>> ops::Add<Point<T>> for Point<T> {
@@ -50,6 +52,30 @@ impl<T: ops::Add<Output = T>> ops::Add<Point<T>> for Point<T> {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
             z: self.z + rhs.z,
+        }
+    }
+}
+
+impl<T: ops::Mul<Output = T> + Copy> ops::Mul<T> for Point<T> {
+    type Output = Point<T>;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        Point {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+impl<T: ops::Div<Output = T> + Copy> ops::Div<T> for Point<T> {
+    type Output = Point<T>;
+
+    fn div(self, rhs: T) -> Self::Output {
+        Point {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
         }
     }
 }
