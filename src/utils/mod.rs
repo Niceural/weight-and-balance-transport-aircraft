@@ -1,6 +1,10 @@
 pub mod point;
 pub mod weight;
 
+pub fn in_to_ft(inches: f64) -> f64 {
+    inches / 12.
+}
+
 pub fn kg_to_lb(kg: f64) -> f64 {
     kg * 2.20462
 }

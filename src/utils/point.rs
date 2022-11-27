@@ -56,6 +56,28 @@ impl<T: ops::Add<Output = T>> ops::Add<Point<T>> for Point<T> {
     }
 }
 
+impl<T: ops::Add<Output = T> + Copy> ops::Add<T> for Point<T> {
+    type Output = Point<T>;
+    fn add(self, rhs: T) -> Self::Output {
+        Point {
+            x: self.x + rhs,
+            y: self.y + rhs,
+            z: self.z + rhs,
+        }
+    }
+}
+
+impl<T: ops::Sub<Output = T> + Copy> ops::Sub<T> for Point<T> {
+    type Output = Point<T>;
+    fn sub(self, rhs: T) -> Self::Output {
+        Point {
+            x: self.x - rhs,
+            y: self.y - rhs,
+            z: self.z - rhs,
+        }
+    }
+}
+
 impl<T: ops::Mul<Output = T> + Copy> ops::Mul<T> for Point<T> {
     type Output = Point<T>;
 
